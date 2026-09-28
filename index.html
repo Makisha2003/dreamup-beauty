@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DreamUp Beauty – Makeup Management</title>
+<style>
+  :root{
+    --plum:#3b1d34; --plum2:#54294a; --rose:#d9577f; --blush:#fbe9ee;
+    --cream:#fff8f5; --gold:#c9a15c; --ink:#2a1626; --mute:#8b7583;
+    --ok:#2f9e6e; --warn:#d98a1f; --bad:#d13b52; --line:#f0dde3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",Tahoma,sans-serif;background:var(--cream);color:var(--ink);
+    display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+  h1,h2,h3,.brand{font-family:Georgia,"Palatino Linotype",serif;font-weight:700}
+  a{color:inherit;text-decoration:none}
+
+  /* Sidebar */
+  aside{background:var(--plum);color:#f6e6ee;padding:2rem 1.2rem;display:flex;flex-direction:column;gap:2rem;
+    position:sticky;top:0;height:100vh}
+  .brand{font-size:1.5rem;padding:0 .6rem;white-space:nowrap}
+  .brand em{color:var(--rose);font-style:italic}
+  nav{display:grid;gap:.3rem}
+  nav a{padding:.75rem 1rem;border-radius:12px;display:flex;gap:.8rem;align-items:center;
+    color:#dcc3d0;transition:.2s}
+  nav a:hover{background:var(--plum2);color:#fff}
+  nav a.on{background:var(--rose);color:#fff;box-shadow:0 8px 20px -8px var(--rose)}
+  .side-card{margin-top:auto;background:var(--plum2);border-radius:16px;padding:1.1rem;font-size:.9rem}
+  .side-card b{color:var(--gold)}
+
+  /* Main */
+  main{padding:2rem 2.4rem 3rem;display:grid;gap:1.8rem;min-width:0}
+  .top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+  .top h1{font-size:2rem}
+  .top p{color:var(--mute)}
+  .search{display:flex;gap:.7rem;align-items:center}
+  .search input{border:1px solid var(--line);background:#fff;padding:.7rem 1.1rem;border-radius:99px;
+    width:220px;font:inherit;outline:none}
+  .search input:focus{border-color:var(--rose);box-shadow:0 0 0 3px var(--blush)}
+  .btn{background:var(--plum);color:#fff;padding:.7rem 1.3rem;border-radius:99px;font-weight:600;
+    border:0;cursor:pointer;font:inherit;font-weight:600;transition:.2s}
+  .btn:hover{background:var(--rose);transform:translateY(-2px)}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+  /* Stats */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.2rem}
+  .stat{background:#fff;border-radius:20px;padding:1.4rem;border:1px solid var(--line);position:relative;overflow:hidden}
+  .stat::after{content:"";position:absolute;right:-30px;top:-30px;width:100px;height:100px;border-radius:50%;background:var(--blush)}
+  .stat span{color:var(--mute);font-size:.9rem;position:relative;z-index:1}
+  .stat h2{font-size:2.2rem;margin:.3rem 0;position:relative;z-index:1}
+  .stat small{color:var(--ok);font-weight:600;position:relative;z-index:1}
+  .stat small.dn{color:var(--bad)}
+  .stat.hl{background:var(--rose);color:#fff;border:0}
+  .stat.hl::after{background:rgba(255,255,255,.15)}
+  .stat.hl span,.stat.hl small{color:#fff}
+
+  /* Panels */
+  .grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:1.4rem}
+  .panel{background:#fff;border-radius:20px;border:1px solid var(--line);padding:1.5rem}
+  .panel h3{font-size:1.25rem;margin-bottom:1.1rem;display:flex;justify-content:space-between;align-items:baseline}
+  .panel h3 a{font-family:"Segoe UI",sans-serif;font-size:.85rem;color:var(--rose);font-weight:600}
+
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  th{text-align:left;color:var(--mute);font-weight:500;font-size:.82rem;padding:0 .5rem .7rem}
+  td{padding:.85rem .5rem;border-top:1px solid var(--line);vertical-align:middle}
+  tr:hover td{background:var(--cream)}
+  .prod{display:flex;align-items:center;gap:.8rem}
+  .sw{width:38px;height:38px;border-radius:12px;flex:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+  .prod b{display:block}.prod small{color:var(--mute)}
+  .bar{height:8px;background:var(--blush);border-radius:9px;width:100px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:9px}
+  .pill{padding:.28rem .75rem;border-radius:99px;font-size:.8rem;font-weight:600}
+  .p-ok{background:#e2f5ec;color:var(--ok)}.p-low{background:#fdf0da;color:var(--warn)}.p-out{background:#fbe1e5;color:var(--bad)}
+  .scroll{overflow-x:auto}
+
+  /* Appointments */
+  .appt{display:flex;gap:1rem;align-items:center;padding:.9rem 0;border-top:1px solid var(--line)}
+  .appt:first-of-type{border-top:0}
+  .time{background:var(--blush);color:var(--plum);border-radius:12px;padding:.5rem .7rem;text-align:center;
+    font-weight:700;font-size:.9rem;min-width:66px}
+  .appt b{display:block}.appt small{color:var(--mute)}
+  .avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;flex:none}
+
+  /* Shades */
+  .shades{display:grid;grid-template-columns:repeat(5,1fr);gap:.7rem}
+  .shade{aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 3px #fff,0 0 0 1px var(--line);transition:.2s}
+  .shade:hover{transform:scale(1.15)}
+
+  @media (max-width:1000px){
+    body{grid-template-columns:1fr}
+    aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:1rem}
+    nav{display:flex;flex-wrap:wrap}.side-card{display:none}
+    .grid{grid-template-columns:1fr}
+    main{padding:1.4rem 1rem}
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">DreamUp <em>Beauty</em></div>
+  <nav>
+    <a class="on" href="#">🏠 Dashboard</a>
+    <a href="#">💄 Products</a>
+    <a href="#">📦 Inventory</a>
+    <a href="#">📅 Appointments</a>
+    <a href="#">👩 Customers</a>
+    <a href="#">🧾 Orders</a>
+    <a href="#">📊 Reports</a>
+  </nav>
+  <div class="side-card">Festival season is coming. <b>6 products</b> need restocking this week.</div>
+</aside>
+
+<main>
+  <div class="top">
+    <div>
+      <h1>Good morning, Priya</h1>
+      <p>Here is how your studio is doing today.</p>
+    </div>
+    <div class="search">
+      <input type="search" placeholder="Search products, clients…" aria-label="Search">
+      <button class="btn">+ Add product</button>
+    </div>
+  </div>
+
+  <section class="stats">
+    <div class="stat hl"><span>Today's sales</span><h2>Rs. 48,500</h2><small>▲ 12% vs yesterday</small></div>
+    <div class="stat"><span>Products in stock</span><h2>1,284</h2><small>▲ 86 new this week</small></div>
+    <div class="stat"><span>Bookings today</span><h2>14</h2><small>3 bridal trials</small></div>
+    <div class="stat"><span>Low stock alerts</span><h2>6</h2><small class="dn">▼ Needs attention</small></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h3>Inventory <a href="#">View all</a></h3>
+      <div class="scroll">
+      <table>
+        <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><div class="prod"><div class="sw" style="background:#c8324f"></div><div><b>Velvet Matte Lipstick</b><small>Shade: Ruby Red</small></div></div></td>
+            <td>Lips</td><td>Rs. 1,450</td><td><div class="bar"><i style="width:82%;background:var(--ok)"></i></div></td><td><span class="pill p-ok">In stock</span></td></tr>
+          <tr><td><div class="prod"><div class="sw" style="background:#e8b89a"></div><div><b>Silk Foundation</b><small>Shade: Warm Beige</small></div></div></td>
+            <td>Face</td><td>Rs. 2,900</td><td><div class="bar"><i style="width:22%;background:var(--warn)"></i></div></td><td><span class="pill p-low">Low</span></td></tr>
+          <tr><td><div class="prod"><div class="sw" style="background:linear-gradient(135deg,#7a4b8f,#e8a0bf)"></div><div><b>Twilight Eyeshadow Palette</b><small>12 shades</small></div></div></td>
+            <td>Eyes</td><td>Rs. 3,650</td><td><div class="bar"><i style="width:64%;background:var(--ok)"></i></div></td><td><span class="pill p-ok">In stock</span></td></tr>
+          <tr><td><div class="prod"><div class="sw" style="background:#2a1626"></div><div><b>Lash Lift Mascara</b><small>Waterproof</small></div></div></td>
+            <td>Eyes</td><td>Rs. 1,200</td><td><div class="bar"><i style="width:0%"></i></div></td><td><span class="pill p-out">Out</span></td></tr>
+          <tr><td><div class="prod"><div class="sw" style="background:#f4a5b5"></div><div><b>Petal Blush</b><small>Shade: Rose Glow</small></div></div></td>
+            <td>Face</td><td>Rs. 1,750</td><td><div class="bar"><i style="width:48%;background:var(--ok)"></i></div></td><td><span class="pill p-ok">In stock</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Today's appointments <a href="#">Calendar</a></h3>
+      <div class="appt"><div class="time">10:00</div><div><b>Meena R.</b><small>Bridal trial</small></div></div>
+      <div class="appt"><div class="time">12:30</div><div><b>Anitha S.</b><small>Party makeup</small></div></div>
+      <div class="appt"><div class="time">03:00</div><div><b>Divya K.</b><small>HD makeup + hair</small></div></div>
+      <div class="appt"><div class="time">05:30</div><div><b>Keerthi M.</b><small>Engagement look</small></div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Popular shades this month</h3>
+    <div class="shades" style="max-width:520px">
+      <div class="shade" style="background:#c8324f" title="Ruby Red"></div>
+      <div class="shade" style="background:#e8b89a" title="Warm Beige"></div>
+      <div class="shade" style="background:#f4a5b5" title="Rose Glow"></div>
+      <div class="shade" style="background:#8c3b4e" title="Berry Wine"></div>
+      <div class="shade" style="background:#d98a6a" title="Peach Nude"></div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>
